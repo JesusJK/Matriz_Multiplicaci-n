@@ -94,5 +94,3 @@ MatrixCalcGUI/
 └─ README.md           # Este documento
 ```
 
-## Licencia
-Este proyecto se distribuye con fines educativos. Ajusta la licencia según tus necesidades.
