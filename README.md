@@ -42,14 +42,7 @@ Puedes descargar el directorio o clonarlo desde tu repositorio. Si usas este eje
 C:\Users\USUARIO\CascadeProjects\MatrixCalcGUI\
 ```
 
-### Paso 2: Instalar dependencias
-Esta app no requiere paquetes externos.
-Si deseas usar `pip` de todos modos:
-```bash
-pip install -r requirements.txt
-```
-
-### Paso 3: Ejecutar la aplicación
+### Paso 2: Ejecutar la aplicación
 ```bash
 python app.py
 ```
