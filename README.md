@@ -91,7 +91,6 @@ La aplicación cuenta con 2 pestañas principales:
 ```
 MatrixCalcGUI/
 ├─ app.py              # Aplicación principal Tkinter
-├─ requirements.txt    # Dependencias (sin paquetes externos)
 └─ README.md           # Este documento
 ```
 
