@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+import ast
 
 
 def is_number(value: str) -> bool:
@@ -7,7 +8,56 @@ def is_number(value: str) -> bool:
         float(value)
         return True
     except ValueError:
-        return False
+        # Intentar evaluar expresiones simples (fracciones a/b, operaciones + - * / **, paréntesis)
+        try:
+            _ = parse_numeric(value)
+            return True
+        except Exception:
+            return False
+
+
+def _eval_ast(node):
+    if isinstance(node, ast.Expression):
+        return _eval_ast(node.body)
+    if isinstance(node, ast.Num):  # py<3.8
+        return float(node.n)
+    if isinstance(node, ast.Constant):  # py>=3.8
+        if isinstance(node.value, (int, float)):
+            return float(node.value)
+        raise ValueError("Constante no numérica")
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
+        val = _eval_ast(node.operand)
+        return +val if isinstance(node.op, ast.UAdd) else -val
+    if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Pow)):
+        left = _eval_ast(node.left)
+        right = _eval_ast(node.right)
+        if isinstance(node.op, ast.Add):
+            return left + right
+        if isinstance(node.op, ast.Sub):
+            return left - right
+        if isinstance(node.op, ast.Mult):
+            return left * right
+        if isinstance(node.op, ast.Div):
+            return left / right
+        if isinstance(node.op, ast.Pow):
+            return left ** right
+    if isinstance(node, ast.Paren):
+        return _eval_ast(node.value)
+    raise ValueError("Expresión no permitida")
+
+
+def parse_numeric(value: str) -> float:
+    s = (value or "").strip()
+    if s == "":
+        raise ValueError("Entrada vacía")
+    try:
+        return float(s)
+    except ValueError:
+        # Permitir '^' como potencia -> '**'
+        expr = s.replace('^', '**')
+        tree = ast.parse(expr, mode='eval')
+        val = _eval_ast(tree)
+        return float(val)
 
 
 class MatrixInput:
@@ -59,9 +109,11 @@ class MatrixInput:
             values_row = []
             for j, e in enumerate(row):
                 val = e.get().strip()
-                if not is_number(val):
+                try:
+                    num = parse_numeric(val)
+                except ValueError:
                     raise ValueError(f"Entrada no numérica en ({i+1},{j+1}): '{val}'")
-                values_row.append(float(val))
+                values_row.append(num)
             matrix.append(values_row)
         return matrix
 
@@ -265,15 +317,17 @@ class App(tk.Tk):
                 res = matmul(A, B)
             elif op == "Escalar×A":
                 s_raw = self.scalar_var.get().strip()
-                if not is_number(s_raw):
+                try:
+                    s = parse_numeric(s_raw)
+                except ValueError:
                     raise ValueError(f"Escalar no numérico: '{s_raw}'")
-                s = float(s_raw)
                 res = scalar_mul(s, A)
             elif op == "A×Escalar":
                 s_raw = self.scalar_var.get().strip()
-                if not is_number(s_raw):
+                try:
+                    s = parse_numeric(s_raw)
+                except ValueError:
                     raise ValueError(f"Escalar no numérico: '{s_raw}'")
-                s = float(s_raw)
                 res = scalar_mul(s, A)
             else:
                 raise ValueError("Operación desconocida")
