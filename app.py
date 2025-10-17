@@ -207,7 +207,7 @@ class App(tk.Tk):
         ttk.Label(op_frame, text="Operación:").grid(row=0, column=0, padx=(0, 6))
         self.operation_var = tk.StringVar(value="A×B")
         self.operation_cb = ttk.Combobox(op_frame, textvariable=self.operation_var, state="readonly",
-                                         values=("A×B", "Escalar×A", "A×Escalar"))
+                                         values=("A×B", "Escalar×A"))
         self.operation_cb.grid(row=0, column=1)
         self.operation_cb.bind("<<ComboboxSelected>>", self._on_operation_change)
         op_frame.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 10))
@@ -300,7 +300,7 @@ class App(tk.Tk):
     def _on_operation_change(self, event=None):
         op = self.operation_var.get()
         
-        if op in ("Escalar×A", "A×Escalar"):
+        if op in ("Escalar×A"):
             self.scalar_container.grid()
         else:
             self.scalar_container.grid_remove()
